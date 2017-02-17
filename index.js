@@ -40,7 +40,7 @@ exports.handler = (apievent, context, cb) =>
 		if(error === null)
 			var response = {body:JSON.stringify(data)};
 		else
-			var response = {body:error};
+			var response = {body:JSON.stringify(error)};
 		
 		cb(null,response);
 	}
@@ -49,7 +49,7 @@ exports.handler = (apievent, context, cb) =>
     function version()
     {
         var verstring = "1.0.3";
-        callback(null, verstring);
+        callback(null, {"message":verstring});
         return;
     }
 	
@@ -69,7 +69,7 @@ exports.handler = (apievent, context, cb) =>
             }
             else
             {
-                callback("Invalid Username or Password", null);
+                callback({"message":"Invalid Username or Password"}, null);
                 return;
             }
         });
@@ -96,12 +96,12 @@ exports.handler = (apievent, context, cb) =>
 		{
 			if (!err && data == "ok")
 			{
-				callback(null, "Admin Addition Success");
+				callback(null, {"message":"Admin Addition Success"});
 				return;
 			}
 			else
 			{
-				callback("Admin Addition Failed", JSON.stringify(err, null, 2));
+				callback({"message":"Admin Addition Failed"}, JSON.stringify(err, null, 2));
 				return;
 			}
 		});
@@ -123,7 +123,7 @@ exports.handler = (apievent, context, cb) =>
                 {
                     if (!err && reply == "ok")
                     {
-                        callback("User Exists", null);
+                        callback({"message":"User Exists"}, null);
                         return;
                     }
                     else
@@ -132,16 +132,17 @@ exports.handler = (apievent, context, cb) =>
 						delete data.operation;
 						delete data.token;
 						data.user_type = 1; // forcing user type as 1 because its a simple USER
+						data.devices= {"device_list":[]}; //initializing with an empty list
                         usermanager.addUser(data, function(err, reply)
                         {
                             if (!err && reply == "ok")
                             {
-                                callback(null, "User Addition Success");
+                                callback(null, {"message":"User Addition Success"});
                                 return;
                             }
                             else
                             {
-                                callback("User Addition Failed", JSON.stringify(err, null, 2));
+                                callback({"message":"User Addition Failed"}, JSON.stringify(err, null, 2));
                                 return;
                             }
                         });
@@ -150,7 +151,7 @@ exports.handler = (apievent, context, cb) =>
             }
             else
             {
-                callback("Invalid Session Token");
+                callback({"message":"Invalid Session Token"});
                 return;
             }
         });
@@ -168,7 +169,7 @@ exports.handler = (apievent, context, cb) =>
                 {
                     if (!err && reply == "ok")
                     {
-                        callback("Device Exists", null);
+                        callback({"message":"Device Exists"}, null);
                         return;
                     }
                     else
@@ -182,24 +183,24 @@ exports.handler = (apievent, context, cb) =>
                             if (!err && reply == "ok")
                             {
 								console.log("here1")
-                                usermanager.updateDeviceListofUser(data.email, data.device.user_email
+                                usermanager.updateDeviceListofUser(data.email, data.device_details.owner_email
                                     , function(err, data)
                                     {
                                         if (err)
                                         {
-                                            callback(err, null);
+                                            callback(err, {"message":null});
                                             return;
                                         }
                                         else
                                         {
-                                            callback(null, "Device Registration Success");
+                                            callback(null, {"message":"Device Registration Success"});
                                             return;
                                         }
                                     });
                             }
                             else
                             {
-                                callback("Device Registration Failed", JSON.stringify(err, null, 2));
+                                callback({"message":"Device Registration Failed"}, JSON.stringify(err, null, 2));
                                 return;
                             }
                         });
@@ -208,7 +209,7 @@ exports.handler = (apievent, context, cb) =>
             }
             else
             {
-                callback("Invalid Session Token");
+                callback({"message":"Invalid Session Token"});
                 return;
             }
         });
@@ -233,14 +234,14 @@ exports.handler = (apievent, context, cb) =>
                     }
                     else
                     {
-                        callback("Empty User List");
+                        callback({"message":"Empty User List"});
                         return;
                     }
                 });
             }
             else
             {
-                callback("Invalid Session Token");
+                callback({"message":"Invalid Session Token"});
                 return;
             }
         });
@@ -262,14 +263,14 @@ exports.handler = (apievent, context, cb) =>
                     }
                     else
                     {
-                        callback("Empty Device List");
+                        callback({"message":"Empty Device List"});
                         return;
                     }
                 });
             }
             else
             {
-                callback("Invalid Session Token");
+                callback({"message":"Invalid Session Token"});
                 return;
             }
         });
