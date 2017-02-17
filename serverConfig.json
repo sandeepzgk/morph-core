@@ -1,0 +1,20 @@
+{
+  "name": "morphcore",
+  "Env": "dev",
+  "jwt": {
+    "secret": "uGJLsneK02r6uAkAAKLJ",
+    "algorithm": "HS256",
+    "days":100,
+	"signature":"6rhhbCMD26HcCm8nQvvvVdNs"
+  },
+  "sessionToken": {
+    "expireTime": 950400
+  },
+  "dynamo": {
+    "userTable": "user-dev",
+    "dataTable": "datastore-dev"
+  },
+  "bcrypt": {
+    "saltWorkFactor": 2
+  }
+}
