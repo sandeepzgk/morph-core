@@ -1,0 +1,73 @@
+{
+  "name": "webcardio-dev",
+  "Env": "dev",
+  "jwt": {
+    "secret": "cqjxlICGPEf219hcmCQi",
+    "algorithm": "HS256"
+  },
+  "redis": {
+    "endpoint": "redis-development.vbjsqt.0001.apse1.cache.amazonaws.com",
+    "port": 6379
+  },
+  "sessionToken": {
+    "defaultToken": "123456",
+    "expireTime": 950400,
+    "sessionStartName": "sessionid:"
+  },
+   "FCMToken": {
+    "defaultToken": "123456",
+    "expireTime": 950400,
+    "user": "userid:"
+  },
+  "lambda": {
+    "region": "ap-southeast-1",
+    "edf": "edf-development",
+    "history": "history-development"
+  },
+  "dynamo": {
+    "userTable": "user-development",
+    "dataTable": "datastore-development",
+    "dataApi": "https://dak8mpgx0g.execute-api.ap-southeast-1.amazonaws.com/dev/dynamo-development",
+	"region": "ap-southeast-1"
+  },
+  "bcrypt": {
+    "saltWorkFactor": 2
+  },
+  "edfpubnub": {
+    "publishKey": "pub-c-9d7612e2-20c3-43f9-910d-80f8d5f5469d",
+    "subscribeKey": "sub-c-51c7def6-0844-11e6-bb6c-02ee2ddab7fe"
+  },
+  "livepubnub": {
+    "publishKey": "pub-c-9d7612e2-20c3-43f9-910d-80f8d5f5469d",
+    "subscribeKey": "sub-c-51c7def6-0844-11e6-bb6c-02ee2ddab7fe"
+  },
+  "sqs": {
+    "queueUrl": "https://sqs.ap-southeast-1.amazonaws.com/460846225148/development-ingest-queue",
+    "processMessage": "process-message",
+    "apiVersion": "2012-11-05"
+  },
+  "edf": {
+    "filePath": "/tmp/",
+    "s3Bucket": "geon-healthcare"
+  },
+  "lua": {
+    "processFile": "isProcess.lua",
+    "patientStatusFile": "updatePatientStatus.lua",
+    "encode": "utf8"
+  },
+  "timecheck": {
+    "diff": 32000,
+    "ingestDiff": 45000
+  },
+  "addon": {
+    "filterEnable": 1,
+    "algorithmEnable": 1
+  },
+  "s3ingest": {
+  "bucket":"backup-channel-development",
+  "filePrefix":"Compressed_",
+  "timeoutDuration":240000,
+  "saveStateEvery":30
+  }
+
+}
