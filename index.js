@@ -2,48 +2,55 @@ var datamanager = require("./lib/dao/datamanager.js");
 var jwtToken = require("./lib/token/tokenmanager.js");
 exports.handler = (apievent, context, cb) =>
 {
-	var ev = JSON.parse(apievent.body);
-    const operation = ev.operation;
-    switch (operation)
-    {
-        case "version":
-            version();
-            break;
-        case "addUser":
-            addUser(ev);
-            break;
-        case "addDevice":
-            addDevice(ev);
-            break;
-        case "login":
-            login(ev);
-            break;
-        case "listUsers":
-            listUsers(ev);
-            break;
-        case "listDevicesByUser":
-            listDevicesByUser(ev);
-            break;
-        case "logout":
-            logout(ev);
-            break;
-		case "agAZsrU3createAdmineZBEyHHGrSdUdv4M":
-			createAdmin(ev);
-			break;
-		case "addUpdateQuestionJSON":
-			addUpdateQuestionJSON(ev);
-			break;
-		case "addFeedback":
-			addFeedback(ev);
-			break;
-		case "fetchFeedback":
-			fetchFeedback(ev);
-			break;
-        default:
-            callback("Unrecognized operation:" + operation,null);
-            break;
-    }
-	
+	if(!apievent.hasOwnProperty("httpMethod"))
+	{	
+		console.log("non API gateway execution");
+		callback(null,{"message":"console execution or timed execution"})
+	}
+	else
+	{
+		var ev = JSON.parse(apievent.body);
+		const operation = ev.operation;
+		switch (operation)
+		{
+			case "version":
+				version();
+				break;
+			case "addUser":
+				addUser(ev);
+				break;
+			case "addDevice":
+				addDevice(ev);
+				break;
+			case "login":
+				login(ev);
+				break;
+			case "listUsers":
+				listUsers(ev);
+				break;
+			case "listDevicesByUser":
+				listDevicesByUser(ev);
+				break;
+			case "logout":
+				logout(ev);
+				break;
+			case "agAZsrU3createAdmineZBEyHHGrSdUdv4M":
+				createAdmin(ev);
+				break;
+			case "addUpdateQuestionJSON":
+				addUpdateQuestionJSON(ev);
+				break;
+			case "addFeedback":
+				addFeedback(ev);
+				break;
+			case "fetchFeedback":
+				fetchFeedback(ev);
+				break;
+			default:
+				callback("Unrecognized operation:" + operation,null);
+				break;
+		}
+	}	
 	function callback(error,data)
 	{
 		var response; 
@@ -319,7 +326,6 @@ exports.handler = (apievent, context, cb) =>
 	{
 		jwtToken.validateToken(data.token, function(err, validate)
         {
-			console.log("validate:"+JSON.stringify(validate))
             if (!err && validate.type===0) //no one other than Devices are supposed to return feedback
             {
 				datamanager.addFeedback(validate.email,data.feedback, function(err, data)
@@ -352,7 +358,6 @@ exports.handler = (apievent, context, cb) =>
 	{
 		jwtToken.validateToken(data.token, function(err, validate)
         {
-			console.log("validate:"+JSON.stringify(validate))
             if (!err && validate.type>0) //devices themselves cannot pull in the feedback
             {
 				datamanager.fetchFeedback(data.deviceid,data.start,data.end, function(err, data)
