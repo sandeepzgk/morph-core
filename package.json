@@ -9,7 +9,7 @@
   "author": "Sandeep Zechariah George K",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "~1.0.2",
+    "bcrypt": "^0.8.5",
     "jwt-simple": "~0.5.1"
   }
 }

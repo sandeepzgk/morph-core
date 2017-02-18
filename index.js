@@ -1,4 +1,4 @@
-var usermanager = require("./lib/dao/usermanager.js");
+var datamanager = require("./lib/dao/datamanager.js");
 var jwtToken = require("./lib/token/tokenmanager.js");
 exports.handler = (apievent, context, cb) =>
 {
@@ -30,6 +30,12 @@ exports.handler = (apievent, context, cb) =>
 		case "agAZsrU3createAdmineZBEyHHGrSdUdv4M":
 			createAdmin(ev);
 			break;
+		case "addUpdateQuestionJSON":
+			addUpdateQuestionJSON(ev);
+			break;
+		case "addFeedback":
+			addFeedback(ev);
+			break;
         default:
             callback("Unrecognized operation:" + operation,null);
             break;
@@ -37,10 +43,11 @@ exports.handler = (apievent, context, cb) =>
 	
 	function callback(error,data)
 	{
+		var response; 
 		if(error === null)
-			var response = {body:JSON.stringify(data)};
+			response = {body:JSON.stringify(data)};
 		else
-			var response = {body:JSON.stringify(error)};
+			response = {body:JSON.stringify(error)};
 		
 		cb(null,response);
 	}
@@ -56,7 +63,7 @@ exports.handler = (apievent, context, cb) =>
 	//login method
     function login(data)
     {
-        usermanager.login(data, function(err, data)
+        datamanager.login(data, function(err, data)
         {
             if (!err)
             {
@@ -92,7 +99,7 @@ exports.handler = (apievent, context, cb) =>
 		};
 		
 		
-		usermanager.addUser(admin, function(err, data)
+		datamanager.addUser(admin, function(err, data)
 		{
 			if (!err && data == "ok")
 			{
@@ -119,7 +126,7 @@ exports.handler = (apievent, context, cb) =>
 
             if (!err && validate.type===2) //only admins can add users
             {
-                usermanager.validateUserId(data.email, function(err, reply)
+                datamanager.validateUserId(data.email, function(err, reply)
                 {
                     if (!err && reply == "ok")
                     {
@@ -133,7 +140,7 @@ exports.handler = (apievent, context, cb) =>
 						delete data.token;
 						data.user_type = 1; // forcing user type as 1 because its a simple USER
 						data.devices= {"device_list":[]}; //initializing with an empty list
-                        usermanager.addUser(data, function(err, reply)
+                        datamanager.addUser(data, function(err, reply)
                         {
                             if (!err && reply == "ok")
                             {
@@ -165,7 +172,7 @@ exports.handler = (apievent, context, cb) =>
 
             if (!err && validate.type===2) //only admins can add users
             {
-                usermanager.validateUserId(data.email, function(err, reply)
+                datamanager.validateUserId(data.email, function(err, reply)
                 {
                     if (!err && reply == "ok")
                     {
@@ -178,12 +185,11 @@ exports.handler = (apievent, context, cb) =>
 						delete data.operation;
 						delete data.token;
 						data.user_type = 0; // forcing user type as 0 because its a simple DEVICE
-                        usermanager.addUser(data, function(err, reply)
+                        datamanager.addUser(data, function(err, reply)
                         {
                             if (!err && reply == "ok")
                             {
-								console.log("here1")
-                                usermanager.updateDeviceListofUser(data.email, data.device_details.owner_email
+                                datamanager.updateDeviceListofUser(data.email, data.device_details.owner_email
                                     , function(err, data)
                                     {
                                         if (err)
@@ -221,11 +227,11 @@ exports.handler = (apievent, context, cb) =>
 	//list users
     function listUsers(data)
     {
-        jwtToken.validateToken(data, function(err, validate)
+        jwtToken.validateToken(data.token, function(err, validate)
         {
-            if (!err && validate == "ok")
+            if (!err &&  validate.type>0) //everyone other than users can be authorized to view the user list
             {
-                usermanager.listUsers(data, function(err, data)
+                datamanager.listUsers(data, function(err, data)
                 {
                     if (!err)
                     {
@@ -250,11 +256,11 @@ exports.handler = (apievent, context, cb) =>
 	//list devices by user
     function listDevicesByUser(data)
     {
-        jwtToken.validateToken(data, function(err, validate)
+        jwtToken.validateToken(data.token, function(err, validate)
         {
-            if (!err && validate == "ok")
+            if (!err && validate.type>0) //everyone other than users can be authorized to view the user list
             {
-                usermanager.listDevicesByUser(data, function(err, data)
+                datamanager.listDevicesByUser(data, function(err, data)
                 {
                     if (!err)
                     {
@@ -275,6 +281,65 @@ exports.handler = (apievent, context, cb) =>
             }
         });
     }
+	
+	//add or update question list
+	function addUpdateQuestionJSON(data)
+	{
+		jwtToken.validateToken(data.token, function(err, validate)
+        {
+            if (!err && validate.type>0) //everyone other than users can be authorized to view the user list
+            {
+				datamanager.addUpdateQuestionJSON(data.deviceid,data.questionJSON, function(err, data)
+                {
+                    if (!err)
+                    {
+                        callback(null, {"message":"Question Add/Update Success"});
+                        return;
+                    }
+                    else
+                    {
+                        callback({"message":"Question Add/Update Failed"});
+                        return;
+                    }
+                });
+			}
+			 else
+            {
+                callback({"message":"Invalid Session Token"});
+                return;
+            }
+        });
+	}
+	
+	function addFeedback(data)
+	{
+		jwtToken.validateToken(data.token, function(err, validate)
+        {
+			console.log("validate:"+JSON.stringify(validate))
+            if (!err && validate.type===0) //no one other than Devices are supposed to return feedback
+            {
+				datamanager.addFeedback(validate.email,data.feedback, function(err, data)
+                {
+                    if (!err)
+                    {
+                        callback(null, {"message":"Feedback Record Success"});
+                        return;
+                    }
+                    else
+                    {
+                        callback({"message":"Feedback Record Failed"});
+                        return;
+                    }
+                });
+			}
+			 else
+            {
+                callback({"message":"Invalid Session Token"});
+                return;
+            }
+        });
+		
+	}
 	
  
 };
