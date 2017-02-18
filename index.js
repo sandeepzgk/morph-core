@@ -36,6 +36,9 @@ exports.handler = (apievent, context, cb) =>
 		case "addFeedback":
 			addFeedback(ev);
 			break;
+		case "fetchFeedback":
+			fetchFeedback(ev);
+			break;
         default:
             callback("Unrecognized operation:" + operation,null);
             break;
@@ -311,6 +314,7 @@ exports.handler = (apievent, context, cb) =>
         });
 	}
 	
+	//add feedback, each will be recorded on the server with a timestamp
 	function addFeedback(data)
 	{
 		jwtToken.validateToken(data.token, function(err, validate)
@@ -328,6 +332,39 @@ exports.handler = (apievent, context, cb) =>
                     else
                     {
                         callback({"message":"Feedback Record Failed"});
+                        return;
+                    }
+                });
+			}
+			 else
+            {
+                callback({"message":"Invalid Session Token"});
+                return;
+            }
+        });
+		
+	}
+	
+	
+	
+	//fetch all feedback for a given device
+	function fetchFeedback(data)
+	{
+		jwtToken.validateToken(data.token, function(err, validate)
+        {
+			console.log("validate:"+JSON.stringify(validate))
+            if (!err && validate.type>0) //devices themselves cannot pull in the feedback
+            {
+				datamanager.fetchFeedback(data.deviceid,data.start,data.end, function(err, data)
+                {
+                    if (!err)
+                    {
+                        callback(null, data);
+                        return;
+                    }
+                    else
+                    {
+                        callback({"message":"Feedback Fetch Failed"});
                         return;
                     }
                 });
